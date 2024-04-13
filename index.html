@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmallProg Interpreter</title>
+</head>
+<body>
+    <h1>SmallProg Interpreter</h1>
+    <textarea id="input" placeholder="Enter SmallProg program" style="height: 150px;"></textarea><br>
+    <button onclick="interpret()">Interpret</button>
+    <button onclick="saveProject()">Save Project</button>
+    <button onclick="loadProject()">Load Project</button>
+    <p>Hint (Only works on specific browsers): Spacebar is number 32</p>
+    <div id="output"></div>
+
+    <script>
+        function interpret() {
+            var input = document.getElementById("input").value.trim().split("\n"); // Split input by lines
+            var output = [];
+
+            // Process each line of input
+            input.forEach(function(line) {
+                var values = line.trim().split(" ").map(e => parseInt(e)); // Split line by spaces and convert to numbers
+                var lineOutput = values.map(e => isNaN(e) ? '&' : String.fromCharCode(e + 96)).join(""); // Interpret each value in the line
+                output.push(lineOutput); // Store the interpreted line
+            });
+
+            // Display all interpreted lines
+            document.getElementById("output").innerText = output.join("\n");
+        }
+
+        function saveProject() {
+            var code = document.getElementById("input").value.trim(); // Get current code from textarea
+            var projectId = localStorage.length; // Use the number of saved projects as the new project ID
+            var fileName = `project_${projectId}.spr`; // Generate a filename based on the project ID
+            localStorage.setItem(fileName, code); // Save the code to localStorage with the filename
+            alert(`Project saved as: ${fileName}`);
+        }
+
+        function loadProject() {
+            var projectId = prompt("Enter project ID to load:"); // Prompt for the project ID
+            var fileName = `project_${projectId}.spr`; // Generate the filename to load
+            var savedCode = localStorage.getItem(fileName); // Retrieve the code from localStorage
+
+            if (savedCode !== null) {
+                document.getElementById("input").value = savedCode; // Set the textarea value to the loaded code
+                alert(`Project loaded: ${fileName}`);
+            } else {
+                alert(`Project ID not found: ${projectId}`);
+            }
+        }
+    </script>
+</body>
+</html>
