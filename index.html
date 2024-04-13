@@ -57,7 +57,7 @@
             var code = document.getElementById("input").value.trim(); // Get current code from textarea
             var blob = new Blob([code], { type: 'text/plain' }); // Create a Blob containing the code
             var projectId = getNextProjectId(); // Get the next available project ID
-            var fileName = `project_${projectId}.spr`; // Generate a filename based on the project ID
+            var fileName = `project_${projectId}.spi`; // Generate a filename based on the project ID
             var link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
