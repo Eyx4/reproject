@@ -10,8 +10,8 @@
     <textarea id="input" placeholder="Enter SmallProg program" style="height: 150px;"></textarea><br>
     <button onclick="interpret()">Interpret</button>
     <button onclick="saveProject()">Save Project</button>
-    <input type="file" id="fileInput" style="display: none;" accept=".spr" onchange="loadProject(event)">
-    <button onclick="document.getElementById('fileInput').click()">Load Project</button>
+    <input type="number" id="projectIdInput" placeholder="Enter Project ID">
+    <button onclick="loadProject()">Load Project</button>
     <button onclick="downloadProject()">Download Project</button>
     <p>Hint (Only works on specific browsers): Spacebar is number 32</p>
     <div id="output"></div>
@@ -34,35 +34,40 @@
 
         function saveProject() {
             var code = document.getElementById("input").value.trim(); // Get current code from textarea
-            var blob = new Blob([code], { type: 'text/plain' }); // Create a Blob containing the code
-            var fileName = 'project.spr'; // Default filename for download
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-            URL.revokeObjectURL(link.href); // Clean up
+            var projectId = getNextProjectId(); // Get the next available project ID
+            localStorage.setItem(`project_${projectId}`, code); // Save the code to localStorage with the project ID
+            alert(`Project saved with ID: ${projectId}`);
         }
 
-        function loadProject(event) {
-            var file = event.target.files[0];
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var loadedCode = e.target.result;
-                document.getElementById("input").value = loadedCode.trim();
-                alert("Project loaded from file.");
-            };
-            reader.readAsText(file);
+        function loadProject() {
+            var projectId = document.getElementById("projectIdInput").value.trim();
+            var savedCode = localStorage.getItem(`project_${projectId}`);
+
+            if (savedCode !== null) {
+                document.getElementById("input").value = savedCode; // Set the textarea value to the loaded code
+                alert(`Project loaded with ID: ${projectId}`);
+            } else {
+                alert(`Project ID not found: ${projectId}`);
+            }
         }
 
         function downloadProject() {
             var code = document.getElementById("input").value.trim(); // Get current code from textarea
             var blob = new Blob([code], { type: 'text/plain' }); // Create a Blob containing the code
-            var fileName = 'project.spr'; // Default filename for download
+            var projectId = getNextProjectId(); // Get the next available project ID
+            var fileName = `project_${projectId}.spr`; // Generate a filename based on the project ID
             var link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
             link.click();
             URL.revokeObjectURL(link.href); // Clean up
+        }
+
+        function getNextProjectId() {
+            var projectId = localStorage.getItem('projectId') || 0;
+            projectId = parseInt(projectId) + 1;
+            localStorage.setItem('projectId', projectId);
+            return projectId;
         }
     </script>
 </body>
