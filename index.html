@@ -1,1 +1,74 @@
-i hate it when it doesnt work so i made it shutdown
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmallProg Interpreter</title>
+</head>
+<body>
+    <h1>SmallProg Interpreter</h1>
+    <textarea id="input" placeholder="Enter SmallProg program" style="height: 150px;"></textarea><br>
+    <button onclick="interpret()">Interpret</button>
+    <button onclick="saveProject()">Save Project</button>
+    <input type="number" id="projectIdInput" placeholder="Enter Project ID">
+    <button onclick="loadProject()">Load Project</button>
+    <button onclick="downloadProject()">Download Project</button>
+    <p>Hint (Only works on specific browsers): Spacebar is number 32</p>
+    <div id="output"></div>
+
+    <script>
+        function interpret() {
+            var input = document.getElementById("input").value.trim().split("\n"); // Split input by lines
+            var output = [];
+
+            // Process each line of input
+            input.forEach(function(line) {
+                var values = line.trim().split(" ").map(e => parseInt(e)); // Split line by spaces and convert to numbers
+                var lineOutput = values.map(e => isNaN(e) ? '&' : String.fromCharCode(e + 96)).join(""); // Interpret each value in the line
+                output.push(lineOutput); // Store the interpreted line
+            });
+
+            // Display all interpreted lines
+            document.getElementById("output").innerText = output.join("\n");
+        }
+
+        function saveProject() {
+            var code = document.getElementById("input").value.trim(); // Get current code from textarea
+            var projectId = getNextProjectId(); // Get the next available project ID
+            localStorage.setItem(`project_${projectId}`, code); // Save the code to localStorage with the project ID
+            alert(`Project saved with ID: ${projectId}`);
+        }
+
+        function loadProject() {
+            var projectId = document.getElementById("projectIdInput").value.trim();
+            var savedCode = localStorage.getItem(`project_${projectId}`);
+
+            if (savedCode !== null) {
+                document.getElementById("input").value = savedCode; // Set the textarea value to the loaded code
+                alert(`Project loaded with ID: ${projectId}`);
+            } else {
+                alert(`Project ID not found: ${projectId}`);
+            }
+        }
+
+        function downloadProject() {
+            var code = document.getElementById("input").value.trim(); // Get current code from textarea
+            var blob = new Blob([code], { type: 'text/plain' }); // Create a Blob containing the code
+            var projectId = getNextProjectId(); // Get the next available project ID
+            var fileName = `project_${projectId}.spr`; // Generate a filename based on the project ID
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(link.href); // Clean up
+        }
+
+        function getNextProjectId() {
+            var projectId = localStorage.getItem('projectId') || 0;
+            projectId = parseInt(projectId) + 1;
+            localStorage.setItem('projectId', projectId);
+            return projectId;
+        }
+    </script>
+</body>
+</html>
